@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.security.Principal;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
@@ -27,16 +27,8 @@ public class AuthenticationController {
     @GetMapping(path = "/sse/{browserId}/listen", produces = "text/event-stream")
     public SseEmitter eventEmitterForQrLogin(@PathVariable String browserId){
         SseEmitter eventEmitter = new SseEmitter(Long.MAX_VALUE);
-
-        try{
-            eventEmitter.send(SseEmitter.event().name("INIT"));
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-
         emitters.put(browserId, eventEmitter);
         eventEmitter.onCompletion(() -> emitters.remove(browserId));
-        System.out.println(browserId);
         return eventEmitter;
     }
 
@@ -53,17 +45,37 @@ public class AuthenticationController {
             @Valid @RequestBody QrScannedEvent qrScannedEvent
     ){
         SseEmitter eventEmitter = emitters.get(emitterId);
-        authenticationService.sendQrScannedEventToBrowser(eventEmitter, qrScannedEvent);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .build();
+         return Optional.ofNullable(eventEmitter)
+                 .map(emitter -> {
+                     authenticationService.sendQrScannedEventToBrowser(emitter, qrScannedEvent);
+                     return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                             .build();
+                 })
+                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PostMapping("/sse/{emitterId}/qr-login")
     public ResponseEntity<?> sentQrLoginEvent(@PathVariable String emitterId){
-        SseEmitter emitter = emitters.get(emitterId);
-        authenticationService.sendQrLoginEvent(emitter);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .build();
+        SseEmitter eventEmitter = emitters.get(emitterId);
+        return Optional.ofNullable(eventEmitter)
+                .map(emitter -> {
+                    authenticationService.sendQrLoginEvent(emitter);
+                    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                            .build();
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @PostMapping("/sse/{emitterId}/qr-cancel")
+    public ResponseEntity<?> sendQrCancelEvent(@PathVariable String emitterId){
+        SseEmitter eventEmitter = emitters.get(emitterId);
+        return Optional.ofNullable(eventEmitter)
+                .map(emitter -> {
+                    authenticationService.sendQrCancelEvent(emitter);
+                    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                            .build();
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @GetMapping(path = "/me")

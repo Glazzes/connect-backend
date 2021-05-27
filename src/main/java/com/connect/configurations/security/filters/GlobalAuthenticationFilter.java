@@ -37,8 +37,12 @@ public class GlobalAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        Cookie refreshTokenCookie = request.getCookies()[0];
+        if(request.getCookies() == null){
+            filterChain.doFilter(request, response);
+            return;
+        }
 
+        Cookie refreshTokenCookie = request.getCookies()[0];
         if(refreshTokenCookie != null){
             String refreshToken = refreshTokenCookie.getValue();
             UserDetails details = securityAuthenticationService.returnUserDetailsByRefreshToken(refreshToken);

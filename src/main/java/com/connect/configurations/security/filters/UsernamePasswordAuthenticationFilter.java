@@ -1,11 +1,9 @@
 package com.connect.configurations.security.filters;
 
 import com.connect.dtos.DeviceInfoDto;
-import com.connect.dtos.mappers.DeviceInfoMapper;
 import com.connect.configurations.security.services.SecurityAuthenticationService;
 import com.connect.configurations.security.utils.cookies.CookieSecurityUtil;
 import com.connect.configurations.security.utils.cookies.types.CookieType;
-import com.connect.entities.embedables.EmbeddableDeviceInfo;
 import com.connect.models.UsernamePasswordLoginRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -65,7 +63,7 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         String refreshToken = UUID.randomUUID().toString();
         Cookie sessionCookie = CookieSecurityUtil.createAuthenticationCookieForType(
-                CookieType.REFRESH, refreshToken
+                CookieType.REFRESH_TOKEN, refreshToken
         );
 
         UserDetails userDetails = (UserDetails) authResult.getPrincipal();
@@ -81,5 +79,6 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
 
         response.setStatus(204);
         response.addCookie(sessionCookie);
+        response.setHeader("AuthToken", authenticationToken);
     }
 }

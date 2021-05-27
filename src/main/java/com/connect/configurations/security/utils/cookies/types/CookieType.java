@@ -1,7 +1,8 @@
 package com.connect.configurations.security.utils.cookies.types;
 
 public enum CookieType {
-    REFRESH("RefreshToken", 3600 * 24 * 7, "/");
+    REFRESH_TOKEN("RefreshToken", 3600 * 24 * 7, "/"),
+    SESSION_SCOPED_REFRESH_TOKEN("RefreshToken", -1, "/");
 
     private final String name;
     private final int duration;

@@ -63,16 +63,31 @@ public class AuthenticationService {
         }
     }
 
+    // Some data needs to be send otherwise the sse callback listener on Js will not be trigered
     public void sendQrLoginEvent(SseEmitter emitter){
         try{
             emitter.send(
                 SseEmitter.event()
                     .name("onQrLogin")
-                    .data("")
+                    .data("Placeholder data")
             );
         }catch (IOException e){
             e.printStackTrace();
-            String errorMessage = "QrLogin event could not be sent to it's repective emitter";
+            String errorMessage = "QrLogin event could not be sent to it's respective emitter";
+            throw new QrScannedEventSendException(errorMessage, e);
+        }
+    }
+
+    public void sendQrCancelEvent(SseEmitter emitter){
+        try{
+            emitter.send(
+                    SseEmitter.event()
+                            .name("onQrCancel")
+                            .data("Placeholder data")
+            );
+        }catch (IOException e){
+            e.printStackTrace();
+            String errorMessage = "QrLogin event could not be sent to it's respective emitter";
             throw new QrScannedEventSendException(errorMessage, e);
         }
     }
