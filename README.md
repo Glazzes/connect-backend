@@ -19,64 +19,50 @@ Features you will find in this project
 
 ## How to run this project
 ### Requirements
-Independent of which running method you choose all of them require a jdk version
-16 installed in your system.
+Running with docker is highly recommended, in case you want to run this project
+without its help, you will need a JDK 16 installed within your system.
 
 ### Option 1: Using docker-compose (recommended)
-In order to run this project, first it needs to be packaged into a jar file,
-you can achieve this by running
-```
-./mvnw package spring-boot:repackage
-```
-
 Before running any other command, keep in mind three docker images will get
 downloaded into your system in case you don't have them already
 * adoptopenjdk:16
 * redis:6.2.3-alpine
 * postgres:13.3-alpine
 
-If you're ok with that, then all you need to do is run the following command,
-by default this project runs on port `8082`, you can change that if you want to,
-by changing default port configuration on `docker-compose.yml` file
-and `application-docker.yml`.
+If you're ok with that, then all you need to do is run the following command
 ```
 docker-compose up -d
 ```
 
+By default this project runs in port `8082`, in any case you want to change defaults
+you must head to `application-docker.yml` and `docker-compose.yml` and change
+the configuration values related to ports.
+
 ### Option 2: Building a docker image
-First it needs to be packaged into a jar file
+By chosing this method only one docker image will be downloaded to your system
+`adoptopenjdk:16`, keep in mind you will need to change configuration in 
+`application-docker.yml` for `redis` and `postgresql`, still you can change 
+`postgresql` for any sql database of your choice, with configurations done run
 ```
-./mvnw package spring-boot:repacage
+docker build --tag connect-backend:latest .
 ```
-In case you already have both a redis server and a postgresql server 
-already installed and you don't want to add more bloat to 
-your system, you can build the image for this project yourself, be aware
-you will need to modify contents of `application-docker.yml` file to match your
-own configuration in order to run properly
+Then just run a brand new container
 ```
-docker build --tag connect-backend:latest
-```
-With that done, start a new docker container
-```
-docker run --name connect-backend-container -d -p 8082:8082 connect-backend:latest
+docker run --name connect -d -p 8082:8082 connect-backend:latest
 ```
 
 ### Option 3: Running with Java
-As for `Option 2` you will need both a redis server and a postgres server running
-in your system, same as for option `Option 1`, you will need to package the
-project into a jar file.
+You will need a JDK 16 installed your system in order to compile this code, 
+since it will run development mode, you will need both a `redis` and a `postgresql`
+database in your system as well as modifing the contents of `application-dev.yml`
+contents in order to match your configurations, with that done make use of the
+maven gradle wrapper to compile this project.
 ```
 ./mvnw package spring-boot:repackage
 ```
-By default this project uses `application-dev.yml`, you should change the configuration
-in order to match your own.
+Once compile just run
 ```
-java -jar /target/connect-0.0.1-SNAPSHOT.jar
-```
-In case you want to make use of your own application file, you can make use of the
-flag `-Dspring-profiles-active=yourprofile` by example
-```
-java -jar -Dspring.profiles.active=custom /target/connect-0.0.1-SNAPSHOT.jar
+java -jar /target/connect-0.0.1-SNAPSHOT.jar 
 ```
 
 ### Option 4: Running in development mode
