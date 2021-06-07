@@ -1,0 +1,63 @@
+plugins {
+    id 'org.springframework.boot' version '2.4.5'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'com.palantir.docker' version '0.26.0'
+    id 'com.palantir.docker-compose' version '0.26.0'
+    id 'java'
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url = uri('https://repo.maven.apache.org/maven2/')
+    }
+}
+
+//
+dependencies {
+    // spring dependencies
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.4.5'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.4.5'
+    implementation 'org.springframework.boot:spring-boot-starter-security:2.4.5'
+    implementation 'org.springframework.boot:spring-boot-starter-validation:2.4.5'
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.4.5'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket:2.4.5'
+    runtimeOnly 'org.springframework.boot:spring-boot-devtools:2.4.5'
+    testImplementation 'org.assertj:assertj-core:3.19.0'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:2.4.5'
+    testImplementation 'org.springframework.security:spring-security-test:5.4.6'
+
+    // db drivers
+    runtimeOnly 'org.postgresql:postgresql:42.2.19'
+    testImplementation 'com.h2database:h2:1.4.200'
+
+    // annotation processors
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+    implementation 'org.mapstruct:mapstruct:1.4.1.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.1.Final'
+}
+
+group = 'com.connect'
+version = '0.0.1-SNAPSHOT'
+description = 'Connect is a backend for a social network made with spring boot'
+java.sourceCompatibility = JavaVersion.VERSION_16
+java.targetCompatibility = JavaVersion.VERSION_16
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.dockerPrepare.dependsOn('bootJar')
+
+docker {
+    name 'connect-gradle'
+    tag 'name', 'latest'
+    copySpec.from('build/libs/').into('jars')
+    dockerfile file('GradleBuild.Dockerfile')
+    pull true
+}
