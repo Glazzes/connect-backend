@@ -64,10 +64,10 @@ public class UserServiceTest {
     @Test
     void verifyIfUsernameIsAlreadyRegisteredTest(){
         String username = "Glaze";
-        underTest.verifyIfUsernameIsAlreadyRegistered(username);
+        underTest.existsByEmail(username);
 
         ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
-        verify(userRepository).verifyIfUsernameIsAlreadyRegistered(argumentCaptor.capture());
+        verify(userRepository).existsByUsername(argumentCaptor.capture());
         String capturedUsername = argumentCaptor.getValue();
         assertThat(username).isEqualTo(capturedUsername);
     }
@@ -75,10 +75,10 @@ public class UserServiceTest {
     @Test
     void verifyIfEmailIsAlreadyRegisteredTest(){
         String email = "Glaze@demo.com";
-        underTest.verifyIfEmailIsAlreadyRegistered(email);
+        underTest.existsByEmail(email);
 
         ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
-        verify(userRepository).verifyIfEmailIsAlreadyRegistered(argumentCaptor.capture());
+        verify(userRepository).existsByEmail(argumentCaptor.capture());
         String capturedEmail = argumentCaptor.getValue();
         assertThat(email).isEqualTo(capturedEmail);
     }

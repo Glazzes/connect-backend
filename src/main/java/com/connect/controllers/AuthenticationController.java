@@ -80,7 +80,7 @@ public class AuthenticationController {
 
     @GetMapping(path = "/me")
     private ResponseEntity<UserDto> getLoggedInUser(Principal principal){
-        return authenticationService.getAuthenticatedUser(principal)
+        return authenticationService.getAuthenticatedUser(principal.getName())
                .map(user -> {
                    UserDto loggedUser = UserMapper.INSTANCE.userToUserDto(user);
                    return ResponseEntity.status(HttpStatus.OK)

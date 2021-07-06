@@ -2,6 +2,7 @@ package com.connect.exceptions;
 
 import com.connect.exceptions.applicationexceptions.QrCodeRequestParseException;
 import com.connect.exceptions.applicationexceptions.QrScannedEventSendException;
+import com.connect.exceptions.applicationexceptions.UserIdNotFoundException;
 import com.connect.exceptions.details.ExceptionsDetails;
 import com.connect.exceptions.utils.ExceptionUtil;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,19 @@ public class ApplicationExceptionHandler {
         String causedBy = """
         Something went wrong while sending the qr event data to the respective browser, probably
         the SseEmitter has completed it's lifecycle
+        """;
+
+        ExceptionsDetails details = ExceptionUtil.createDetails(exception, causedBy);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(details);
+    }
+
+    @ExceptionHandler(value = UserIdNotFoundException.class)
+    public ResponseEntity<ExceptionsDetails> handleUserIdNotFoundException(
+            UserIdNotFoundException exception
+    ){
+        String causedBy = """
+        An user with the given id was not found, it may be because the id has never been registered
         """;
 
         ExceptionsDetails details = ExceptionUtil.createDetails(exception, causedBy);

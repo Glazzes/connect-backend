@@ -5,10 +5,10 @@ import com.connect.configurations.security.authenticationproviders.UsernamePassw
 import com.connect.configurations.security.filters.GlobalAuthenticationFilter;
 import com.connect.configurations.security.filters.QrCodeAuthenticationFilter;
 import com.connect.configurations.security.filters.UsernamePasswordAuthenticationFilter;
-import com.connect.configurations.security.services.SecurityAuthenticationService;
+import com.connect.configurations.security.services.SessionAuthenticationService;
+import com.connect.repositories.redis.RedisQrLoginRequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -30,8 +30,8 @@ import java.util.List;
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final SecurityAuthenticationService securityAuthenticationService;
+    private final RedisQrLoginRequestRepository redisQrLoginRequestRepository;
+    private final SessionAuthenticationService sessionAuthenticationService;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -41,7 +41,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         );
 
         AuthenticationProvider qrCodeAuthenticationProvider = new QRCodeAuthenticationProvider(
-                redisTemplate, userDetailsService
+                redisQrLoginRequestRepository, userDetailsService
         );
 
         auth.authenticationProvider(qrCodeAuthenticationProvider)
@@ -54,7 +54,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.cors().configurationSource(httpServletRequest -> {
             CorsConfiguration corsConfiguration = new CorsConfiguration();
             corsConfiguration.setAllowCredentials(true);
-            corsConfiguration.setAllowedOrigins(List.of("http://localhost:8080", "http://localhost:8081"));
+            corsConfiguration.setAllowedOrigins(List.of("http://localhost:8080", "http://localhost:19006"));
             corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
             corsConfiguration.setMaxAge(Duration.ofMinutes(60));
             corsConfiguration.setAllowedHeaders(List.of("*"));
@@ -70,17 +70,18 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers(HttpMethod.POST, "/auth/qr/login").permitAll()
             .antMatchers(HttpMethod.GET, "/auth/sse/*/listen").permitAll()
             .antMatchers(HttpMethod.POST, "/auth/sse/*/qr-scan").permitAll()
+            .antMatchers(HttpMethod.GET, "/ws/**").permitAll()
             .anyRequest()
             .authenticated();
 
         http.addFilterAfter(new UsernamePasswordAuthenticationFilter(
-                authenticationManager(), securityAuthenticationService
+                authenticationManager(), sessionAuthenticationService
             ), CorsFilter.class)
             .addFilterAfter(new QrCodeAuthenticationFilter(
-                    authenticationManager(), securityAuthenticationService
+                    authenticationManager(), sessionAuthenticationService
             ), UsernamePasswordAuthenticationFilter.class)
             .addFilterAfter(new GlobalAuthenticationFilter(
-                    securityAuthenticationService
+                    sessionAuthenticationService
             ), QrCodeAuthenticationFilter.class);
 
         http.sessionManagement()

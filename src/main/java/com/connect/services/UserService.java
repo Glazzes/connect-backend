@@ -36,16 +36,20 @@ public class UserService {
         return UserMapper.INSTANCE.userToUserDto(savedUser);
     }
 
+    public Optional<User> findById(String id){
+        return userRepository.findById(id);
+    }
+
     public Optional<User> findByUsername(String username){
         return userRepository.findByUsername(username);
     }
 
-    public boolean verifyIfUsernameIsAlreadyRegistered(String username){
-        return userRepository.verifyIfUsernameIsAlreadyRegistered(username);
+    public boolean existsByUsername(String username){
+        return userRepository.existsByUsername(username);
     }
 
-    public boolean verifyIfEmailIsAlreadyRegistered(String email){
-        return userRepository.verifyIfEmailIsAlreadyRegistered(email);
+    public boolean existsByEmail(String email){
+        return userRepository.existsByEmail(email);
     }
 
 }

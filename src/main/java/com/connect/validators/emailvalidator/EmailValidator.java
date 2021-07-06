@@ -15,6 +15,6 @@ public class EmailValidator implements
     @Override
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
         // If a given email is not registered already the validation must be true
-        return !userService.verifyIfEmailIsAlreadyRegistered(s);
+        return !userService.existsByEmail(s);
     }
 }

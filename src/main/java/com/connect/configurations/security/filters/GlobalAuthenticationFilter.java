@@ -1,7 +1,10 @@
 package com.connect.configurations.security.filters;
 
 import com.connect.configurations.security.authenticationtokens.SuccessfulAuthenticationToken;
-import com.connect.configurations.security.services.SecurityAuthenticationService;
+import com.connect.configurations.security.services.SessionAuthenticationService;
+import com.connect.configurations.security.utils.cookie.CookieUtil;
+import com.connect.configurations.security.utils.cookie.CookieType;
+import com.connect.entities.redis.RedisSession;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -17,10 +20,10 @@ import java.io.IOException;
 import java.util.List;
 
 public class GlobalAuthenticationFilter extends OncePerRequestFilter {
-    private final SecurityAuthenticationService securityAuthenticationService;
+    private final SessionAuthenticationService sessionAuthenticationService;
 
-    public GlobalAuthenticationFilter(SecurityAuthenticationService securityAuthenticationService){
-        this.securityAuthenticationService = securityAuthenticationService;
+    public GlobalAuthenticationFilter(SessionAuthenticationService sessionAuthenticationService){
+        this.sessionAuthenticationService = sessionAuthenticationService;
     }
 
     @Override
@@ -42,20 +45,57 @@ public class GlobalAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        Cookie refreshTokenCookie = request.getCookies()[0];
-        if(refreshTokenCookie != null){
-            String refreshToken = refreshTokenCookie.getValue();
-            UserDetails details = securityAuthenticationService.returnUserDetailsByRefreshToken(refreshToken);
-
-            SuccessfulAuthenticationToken successfulAuthentication = new SuccessfulAuthenticationToken(
-                    details,
-                    details.getPassword(),
-                    details.getAuthorities()
-            );
-
-            SecurityContextHolder.getContext().setAuthentication(successfulAuthentication);
+        if(request.getCookies().length < 2){
             filterChain.doFilter(request, response);
+            return;
         }
+
+        Cookie refreshToken = CookieUtil.getCookieByName(
+                CookieType.REFRESH_TOKEN.getName(), request.getCookies()
+        );
+
+        Cookie authorizationToken = CookieUtil.getCookieByName(
+                CookieType.AUTHORIZATION_TOKEN.getName(), request.getCookies()
+        );
+
+        RedisSession currentSession = sessionAuthenticationService.
+                findRedisSessionByRefreshToken(refreshToken.getValue());
+
+        if(!currentSession.isValid()){
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if(!currentSession.isNotBlacklisted()){
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if(!currentSession.getAssociatedAuthenticationToken().equals(authorizationToken.getValue())){
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        UserDetails details = sessionAuthenticationService.getUserDetailsByRefreshToken(refreshToken.getValue());
+        if(currentSession.getOwner().equals(details.getUsername())){
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        SuccessfulAuthenticationToken successfulAuthentication = new SuccessfulAuthenticationToken(
+                details,
+                details.getPassword(),
+                details.getAuthorities()
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(successfulAuthentication);
+
+        refreshToken = CookieUtil.restartCookieMaxAgeForType(
+                CookieType.REFRESH_TOKEN, refreshToken
+        );
+
+        response.addCookie(refreshToken);
+        filterChain.doFilter(request, response);
     }
 
 }

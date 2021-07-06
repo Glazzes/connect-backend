@@ -1,9 +1,9 @@
 package com.connect.configurations.security.filters;
 
 import com.connect.configurations.security.authenticationtokens.QrCodeAuthenticationToken;
-import com.connect.configurations.security.services.SecurityAuthenticationService;
-import com.connect.configurations.security.utils.cookies.CookieSecurityUtil;
-import com.connect.configurations.security.utils.cookies.types.CookieType;
+import com.connect.configurations.security.services.SessionAuthenticationService;
+import com.connect.configurations.security.utils.cookie.CookieUtil;
+import com.connect.configurations.security.utils.cookie.CookieType;
 import com.connect.dtos.DeviceInfoDto;
 import com.connect.exceptions.applicationexceptions.QrCodeRequestParseException;
 import com.connect.models.QrLoginRequest;
@@ -28,14 +28,14 @@ import java.util.UUID;
 @Slf4j
 public class QrCodeAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     private final AuthenticationManager manager;
-    private final SecurityAuthenticationService authenticationService;
+    private final SessionAuthenticationService authenticationService;
 
     private static final RequestMatcher DEFAULT_REQUEST_MATCHER = new AntPathRequestMatcher("/auth/qr/login", "POST");
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public QrCodeAuthenticationFilter(
             AuthenticationManager manager,
-            SecurityAuthenticationService authenticationService
+            SessionAuthenticationService authenticationService
     ){
         super(DEFAULT_REQUEST_MATCHER, manager);
         this.manager = manager;
@@ -61,26 +61,28 @@ public class QrCodeAuthenticationFilter extends AbstractAuthenticationProcessing
 
             return manager.authenticate(authentication);
         }catch (IOException e){
-            e.printStackTrace();
-            return null;
-            /*
             String errorMessage = "Qr code authentication failed";
             throw new QrCodeRequestParseException(errorMessage, e);
-             */
         }
     }
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         String refreshToken = UUID.randomUUID().toString();
-        Cookie sessionCookie = CookieSecurityUtil.createAuthenticationCookieForType(
+        String authorizationToken = UUID.randomUUID().toString();
+
+        Cookie refreshTokenCookie = CookieUtil.createCookieForType(
                 CookieType.REFRESH_TOKEN, refreshToken
+        );
+
+        Cookie authorizationCookie = CookieUtil.createCookieForType(
+                CookieType.AUTHORIZATION_TOKEN, authorizationToken
         );
 
         UserDetails userDetails = (UserDetails) authResult.getPrincipal();
 
-        String authenticationToken = authenticationService.associateRefreshTokenWithAuthorizationToken(
-                refreshToken, userDetails.getUsername()
+        authenticationService.associateRefreshTokenWithAuthorizationToken(
+                refreshToken, authorizationToken ,userDetails.getUsername()
         );
 
         authenticationService.createNewSession(
@@ -90,7 +92,7 @@ public class QrCodeAuthenticationFilter extends AbstractAuthenticationProcessing
         );
 
         response.setStatus(204);
-        response.addCookie(sessionCookie);
-        response.setHeader("AuthToken", authenticationToken);
+        response.addCookie(refreshTokenCookie);
+        response.addCookie(authorizationCookie);
     }
 }

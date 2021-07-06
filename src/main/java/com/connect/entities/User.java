@@ -8,12 +8,18 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "users")
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString(exclude = {"friends"})
 @EqualsAndHashCode(exclude = {"friends"})
+@Table(
+        name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uq_users_username", columnNames = "username"),
+                @UniqueConstraint(name = "uq_users_email", columnNames = "email")
+        }
+)
 public class User {
 
     @Id
@@ -24,13 +30,13 @@ public class User {
     )
     private String id;
 
-    @Column(name = "username", unique = true, nullable = false, length = 100)
+    @Column(name = "username", nullable = false, updatable = false)
     private String username;
 
     @Column(name = "nickname", nullable = false, length = 100)
     private String nickname;
 
-    @Column(name = "email", unique = true, nullable = false)
+    @Column(name = "email", nullable = false)
     private String email;
 
     @Column(name = "password", nullable = false)

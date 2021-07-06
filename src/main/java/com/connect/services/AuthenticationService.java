@@ -1,10 +1,11 @@
 package com.connect.services;
 
+import com.connect.entities.redis.RedisQrLoginRequest;
 import com.connect.entities.User;
-import com.connect.exceptions.applicationexceptions.QrCodeRequestParseException;
 import com.connect.exceptions.applicationexceptions.QrScannedEventSendException;
 import com.connect.models.QrLoginRequest;
 import com.connect.models.QrScannedEvent;
+import com.connect.repositories.redis.RedisQrLoginRequestRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -14,20 +15,28 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
     private final UserService userService;
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final RedisQrLoginRequestRepository redisQrLoginRequestRepository;
 
-    public Optional<User> getAuthenticatedUser(Principal principal){
-        return userService.findByUsername(principal.getName());
+    public Optional<User> getAuthenticatedUser(String username){
+        return userService.findByUsername(username);
     }
 
     public void registerQrCodeRequest(QrLoginRequest request){
+        String qrId = String.format(
+                "Qr-%s-%s",
+                request.getMobileSignature(),
+                request.getWebSignature()
+        );
+
+        RedisQrLoginRequest newQrRequest = new RedisQrLoginRequest(qrId, request);
+        redisQrLoginRequestRepository.save(newQrRequest);
+
+        /*
         try{
             String qrId = String.format(
                     "Qr-%s-%s",
@@ -47,6 +56,7 @@ public class AuthenticationService {
             e.printStackTrace();
             throw new QrCodeRequestParseException("QrCodeRequest conversion to json failed", e);
         }
+         */
     }
 
     public void sendQrScannedEventToBrowser(SseEmitter emitter, QrScannedEvent eventData){
@@ -63,7 +73,7 @@ public class AuthenticationService {
         }
     }
 
-    // Some data needs to be send otherwise the sse callback listener on Js will not be trigered
+    // Some data needs to be send otherwise the sse callback listener on Js will not be triggered
     public void sendQrLoginEvent(SseEmitter emitter){
         try{
             emitter.send(

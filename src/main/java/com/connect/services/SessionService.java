@@ -2,7 +2,7 @@ package com.connect.services;
 
 import com.connect.dtos.DeviceInfoDto;
 import com.connect.dtos.mappers.DeviceInfoMapper;
-import com.connect.entities.embedables.EmbeddableDeviceInfo;
+import com.connect.entities.embedables.DeviceInfo;
 import com.connect.entities.Session;
 import com.connect.exceptions.applicationexceptions.SessionUserAssociationException;
 import com.connect.repositories.SessionRepository;
@@ -19,7 +19,7 @@ public class SessionService {
 
     @Transactional
     public void saveSession(String refreshToken, String username, DeviceInfoDto deviceInfo){
-        EmbeddableDeviceInfo embeddableDeviceInfo = DeviceInfoMapper.INSTANCE
+        DeviceInfo embeddableDeviceInfo = DeviceInfoMapper.INSTANCE
                 .deviceInfoDtoToDeviceInfo(deviceInfo);
 
         userService.findByUsername(username)

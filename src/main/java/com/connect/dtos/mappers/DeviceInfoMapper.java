@@ -1,7 +1,7 @@
 package com.connect.dtos.mappers;
 
 import com.connect.dtos.DeviceInfoDto;
-import com.connect.entities.embedables.EmbeddableDeviceInfo;
+import com.connect.entities.embedables.DeviceInfo;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -15,6 +15,6 @@ public interface DeviceInfoMapper {
     @Mapping(source = "deviceOperatingSystem", target = "deviceOperatingSystem")
     @Mapping(source = "deviceName", target = "deviceName")
     @Mapping(source = "deviceVersion", target = "deviceVersion")
-    EmbeddableDeviceInfo deviceInfoDtoToDeviceInfo(DeviceInfoDto deviceInfoDto);
+    DeviceInfo deviceInfoDtoToDeviceInfo(DeviceInfoDto deviceInfoDto);
 
 }

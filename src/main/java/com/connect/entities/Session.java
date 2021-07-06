@@ -1,6 +1,6 @@
 package com.connect.entities;
 
-import com.connect.entities.embedables.EmbeddableDeviceInfo;
+import com.connect.entities.embedables.DeviceInfo;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,11 +13,7 @@ import javax.persistence.*;
 public class Session {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    @Column(name = "associated_refresh_token", nullable = false, updatable = false)
-    private String associatedRefreshToken;
+    private String refreshToken;
 
     @Column(name = "is_active")
     private boolean isActive;
@@ -30,16 +26,16 @@ public class Session {
     private User associatedUser;
 
     @Embedded
-    private EmbeddableDeviceInfo deviceInfo;
+    private DeviceInfo deviceInfo;
 
     public Session(
-            String associatedRefreshToken,
+            String refreshToken,
             boolean isActive,
             boolean isNotBlacklisted,
             User associatedUser,
-            EmbeddableDeviceInfo deviceInfo
+            DeviceInfo deviceInfo
     ){
-        this.associatedRefreshToken = associatedRefreshToken;
+        this.refreshToken = refreshToken;
         this.isActive = isActive;
         this.isNotBlacklisted = isNotBlacklisted;
         this.associatedUser = associatedUser;

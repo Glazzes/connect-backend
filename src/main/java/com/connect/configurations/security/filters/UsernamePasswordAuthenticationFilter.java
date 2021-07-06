@@ -1,9 +1,9 @@
 package com.connect.configurations.security.filters;
 
 import com.connect.dtos.DeviceInfoDto;
-import com.connect.configurations.security.services.SecurityAuthenticationService;
-import com.connect.configurations.security.utils.cookies.CookieSecurityUtil;
-import com.connect.configurations.security.utils.cookies.types.CookieType;
+import com.connect.configurations.security.services.SessionAuthenticationService;
+import com.connect.configurations.security.utils.cookie.CookieUtil;
+import com.connect.configurations.security.utils.cookie.CookieType;
 import com.connect.models.UsernamePasswordLoginRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,11 +29,11 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
     private final ObjectMapper mapper = new ObjectMapper();
 
     private final AuthenticationManager manager;
-    private final SecurityAuthenticationService authenticationService;
+    private final SessionAuthenticationService authenticationService;
 
     public UsernamePasswordAuthenticationFilter(
             AuthenticationManager manager,
-            SecurityAuthenticationService authenticationService
+            SessionAuthenticationService authenticationService
     ){
         super(DEFAULT_REQUEST_MATCHER, manager);
         this.manager = manager;
@@ -62,14 +62,19 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         String refreshToken = UUID.randomUUID().toString();
-        Cookie sessionCookie = CookieSecurityUtil.createAuthenticationCookieForType(
+        String authorizationToken = UUID.randomUUID().toString();
+
+        Cookie refreshTokenCookie = CookieUtil.createCookieForType(
                 CookieType.REFRESH_TOKEN, refreshToken
         );
 
-        UserDetails userDetails = (UserDetails) authResult.getPrincipal();
+        Cookie authorizationCookie = CookieUtil.createCookieForType(
+                CookieType.AUTHORIZATION_TOKEN, authorizationToken
+        );
 
-        String authenticationToken = authenticationService.associateRefreshTokenWithAuthorizationToken(
-                refreshToken, userDetails.getUsername()
+        UserDetails userDetails = (UserDetails) authResult.getPrincipal();
+        authenticationService.associateRefreshTokenWithAuthorizationToken(
+                refreshToken, authorizationToken, userDetails.getUsername()
         );
 
         authenticationService.createNewSession(
@@ -78,7 +83,7 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
                 (DeviceInfoDto) authResult.getDetails());
 
         response.setStatus(204);
-        response.addCookie(sessionCookie);
-        response.setHeader("AuthToken", authenticationToken);
+        response.addCookie(refreshTokenCookie);
+        response.addCookie(authorizationCookie);
     }
 }

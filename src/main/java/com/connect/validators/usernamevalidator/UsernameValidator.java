@@ -15,6 +15,6 @@ public class UsernameValidator implements
     @Override
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
         // If a given username is not registered already the validation must be true
-        return !userService.verifyIfUsernameIsAlreadyRegistered(s);
+        return !userService.existsByUsername(s);
     }
 }

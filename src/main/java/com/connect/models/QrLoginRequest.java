@@ -25,6 +25,5 @@ public class QrLoginRequest {
     private String webSignature;
 
     @Valid
-    @NotNull
     private DeviceInfoDto deviceInfo;
 }
