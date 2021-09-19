@@ -2,7 +2,7 @@ package com.connect.shared.exception;
 
 import com.connect.shared.exception.application.QrCodeRequestParseException;
 import com.connect.shared.exception.application.QrScannedEventSendException;
-import com.connect.shared.exception.application.UserIdNotFoundException;
+import com.connect.user.domain.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -27,9 +27,9 @@ public class ApplicationExceptionHandler {
                 .body(new ExceptionsDetails(exception.getMessage()));
     }
 
-    @ExceptionHandler(value = UserIdNotFoundException.class)
+    @ExceptionHandler(value = UserNotFoundException.class)
     public ResponseEntity<ExceptionsDetails> handleUserIdNotFoundException(
-            UserIdNotFoundException exception
+            UserNotFoundException exception
     ){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ExceptionsDetails(exception.getMessage()));

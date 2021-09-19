@@ -1,15 +1,13 @@
 package com.connect.user.domain.entities;
 
+import com.connect.shared.enums.ConnectionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
-
-import java.time.LocalDateTime;
 
 @Data
 @Document(indexName = "users")
@@ -21,18 +19,18 @@ public class ElasticUser {
     private String id;
 
     @Field(name = "username", type = FieldType.Text)
-    private String username;
+    private String nickname;
 
-    @Field(name = "lastLogIn", type = FieldType.Date)
-    private LocalDateTime lastLogIn;
-
-    @Transient
+    @Field(name = "profilePicture", type = FieldType.Text)
     private String profilePicture;
 
-    public ElasticUser(String id, String username){
+    @Field(name = "connectionStatus", type = FieldType.Auto)
+    private ConnectionStatus connectionStatus;
+
+    public ElasticUser(String id, String nickname){
         this.id = id;
-        this.username = username;
-        this.lastLogIn = LocalDateTime.now();
+        this.nickname = nickname;
+        this.connectionStatus = ConnectionStatus.OFFLINE;
     }
 
 }

@@ -15,13 +15,13 @@ public class DeviceInfo {
     @Enumerated(value = EnumType.STRING)
     private DeviceType type;
 
-    @Column(name = "device_operating_system", nullable = false)
-    private String deviceOperatingSystem;
+    @Column(name = "details", nullable = false)
+    private String appDetails;
 
-    @Column(name = "device_name", nullable = false)
-    private String deviceName;
+    @Column(name = "device_details")
+    private String deviceDetails;
 
-    @Column(name = "device_version", nullable = false)
-    private String deviceVersion;
+    @Column(name = "ip_address", nullable = false)
+    private String ipAddress;
 
 }

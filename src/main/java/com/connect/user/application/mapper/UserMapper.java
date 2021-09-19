@@ -1,6 +1,6 @@
 package com.connect.user.application.mapper;
 
-import com.connect.user.application.dto.PostgresUserDto;
+import com.connect.user.application.dto.UserDto;
 import com.connect.user.domain.entities.PostgresUser;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -15,5 +15,6 @@ public interface UserMapper {
     @Mapping(source = "username", target = "username")
     @Mapping(source = "nickname", target = "nickname")
     @Mapping(source = "profilePicture", target = "profilePicture")
-    PostgresUserDto userToUserDto(PostgresUser user);
+    @Mapping(source = "connectionStatus", target = "connectionStatus")
+    UserDto userToUserDto(PostgresUser user);
 }

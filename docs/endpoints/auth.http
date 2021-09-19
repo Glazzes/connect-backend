@@ -1,0 +1,46 @@
+POST http://localhost:8082/auth/login
+Content-Type: application/json
+
+{
+  "username": "glaze",
+  "password": "GlazePassword1",
+  "rememberMe": false,
+  "deviceInfo": {
+    "type": "MOBILE_APP",
+    "appDetails": "Firefox android v91.01",
+    "deviceDetails": "Samsung s7",
+    "ipAddress": "127.0.0.1"
+  }
+}
+###
+
+POST http://localhost:8082/auth/qr/register
+Content-Type: application/json
+
+{
+  "username": "glaze",
+  "mobileId": "{{$uuid}}",
+  "browserId": "{{$uuid}}",
+  "deviceInfo": {
+    "type": "MOBILE_APP",
+    "appDetails": "Firefox android v91.01",
+    "deviceDetails": "Samsung s7",
+    "ipAddress": "127.0.0.1"
+  }
+}
+###
+
+POST http://localhost:8082/auth/qr/login
+Content-Type: application/json
+
+{
+  "username": "glaze",
+  "mobileId": "{{$uuid}}",
+  "browserId": "{{$uuid}}",
+  "deviceInfo": {
+    "type": "MOBILE_APP",
+    "appDetails": "Firefox android v91.01",
+    "deviceDetails": "Samsung s7",
+    "ipAddress": "127.0.0.1"
+  }
+}

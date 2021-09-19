@@ -1,6 +1,6 @@
 package com.connect.session.application.mapper;
 
-import com.connect.session.application.dto.DeviceInfoDto;
+import com.connect.session.domain.model.DeviceInfoModel;
 import com.connect.session.domain.entities.embedable.DeviceInfo;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -12,9 +12,9 @@ public interface DeviceInfoMapper {
     DeviceInfoMapper INSTANCE = Mappers.getMapper(DeviceInfoMapper.class);
 
     @Mapping(source = "type", target = "type")
-    @Mapping(source = "deviceOperatingSystem", target = "deviceOperatingSystem")
-    @Mapping(source = "deviceName", target = "deviceName")
-    @Mapping(source = "deviceVersion", target = "deviceVersion")
-    DeviceInfo deviceInfoDtoToDeviceInfo(DeviceInfoDto deviceInfoDto);
+    @Mapping(source = "appDetails", target = "appDetails")
+    @Mapping(source = "deviceDetails", target = "deviceDetails")
+    @Mapping(source = "ipAddress", target = "ipAddress")
+    DeviceInfo deviceInfoModelToDeviceInfo(DeviceInfoModel deviceInfoModel);
 
 }

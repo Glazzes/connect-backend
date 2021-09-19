@@ -2,7 +2,7 @@ package com.connect.user.application.service;
 
 import com.connect.user.domain.entities.PostgresUser;
 import com.connect.user.domain.model.SignUpRequest;
-import com.connect.user.domain.repository.PostgresUserRepository;
+import com.connect.user.infrastructure.repository.PostgresUserRepository;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;

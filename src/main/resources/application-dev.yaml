@@ -13,5 +13,5 @@ spring:
   datasource:
     username: glaze
     password: dalmatian
-    driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/connect
+    driver-class-name: org.postgresql.Driver

@@ -1,8 +1,9 @@
 package com.connect.shared.enums;
 
 public enum DeviceType {
-    PC("PC"),
-    MOBILE("Mobile");
+    DESKTOP("PC"),
+    MOBILE_BROWSER("MobileBrowser"),
+    MOBILE_APP("Mobile");
 
     String name;
 

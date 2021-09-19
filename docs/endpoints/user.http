@@ -1,0 +1,18 @@
+POST http://localhost:8082/user
+Content-Type: application/json
+
+{
+  "username": "glaze",
+  "password": "GlazePassword1",
+  "email": "glaze@demo.com"
+}
+###
+
+POST http://localhost:8082/user
+Content-Type: application/json
+
+{
+  "username": "dashwood",
+  "password": "DashwoodPassword1",
+  "email": "dashwood@demo.com"
+}

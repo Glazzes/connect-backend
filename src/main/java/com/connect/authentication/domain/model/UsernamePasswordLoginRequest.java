@@ -1,6 +1,6 @@
 package com.connect.authentication.domain.model;
 
-import com.connect.session.application.dto.DeviceInfoDto;
+import com.connect.session.domain.model.DeviceInfoModel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -26,6 +26,6 @@ public class UsernamePasswordLoginRequest {
 
     @Valid
     @NotNull
-    private DeviceInfoDto deviceInfo;
+    private DeviceInfoModel deviceInfo;
 
 }

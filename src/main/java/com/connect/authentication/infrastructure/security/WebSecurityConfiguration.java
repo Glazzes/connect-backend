@@ -1,12 +1,12 @@
 package com.connect.authentication.infrastructure.security;
 
-import com.connect.authentication.infrastructure.security.authenticationproviders.QRCodeAuthenticationProvider;
-import com.connect.authentication.infrastructure.security.authenticationproviders.UsernamePasswordAuthenticationProvider;
-import com.connect.authentication.infrastructure.security.filters.GlobalAuthenticationFilter;
-import com.connect.authentication.infrastructure.security.filters.QrCodeAuthenticationFilter;
-import com.connect.authentication.infrastructure.security.filters.UsernamePasswordAuthenticationFilter;
-import com.connect.authentication.infrastructure.security.services.SessionAuthenticationService;
-import com.connect.authentication.domain.repository.RedisQrLoginRequestRepository;
+import com.connect.authentication.infrastructure.security.provider.QRCodeAuthenticationProvider;
+import com.connect.authentication.infrastructure.security.provider.UsernamePasswordAuthenticationProvider;
+import com.connect.authentication.infrastructure.security.filter.AuthenticationVerifierFilter;
+import com.connect.authentication.infrastructure.security.filter.QrCodeAuthenticationFilter;
+import com.connect.authentication.infrastructure.security.filter.UsernamePasswordAuthenticationFilter;
+import com.connect.authentication.infrastructure.security.service.SessionAuthenticationService;
+import com.connect.authentication.infrastructure.repository.RedisQrLoginRequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
@@ -41,7 +41,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         );
 
         AuthenticationProvider qrCodeAuthenticationProvider = new QRCodeAuthenticationProvider(
-                redisQrLoginRequestRepository, userDetailsService
+                userDetailsService, redisQrLoginRequestRepository
         );
 
         auth.authenticationProvider(qrCodeAuthenticationProvider)
@@ -70,7 +70,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers(HttpMethod.POST, "/auth/qr/login").permitAll()
             .antMatchers(HttpMethod.GET, "/auth/sse/*/listen").permitAll()
             .antMatchers(HttpMethod.POST, "/auth/sse/*/qr-scan").permitAll()
-            .antMatchers(HttpMethod.GET, "/ws/**").permitAll()
             .anyRequest()
             .authenticated();
 
@@ -80,7 +79,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             .addFilterAfter(new QrCodeAuthenticationFilter(
                     authenticationManager(), sessionAuthenticationService
             ), UsernamePasswordAuthenticationFilter.class)
-            .addFilterAfter(new GlobalAuthenticationFilter(
+            .addFilterAfter(new AuthenticationVerifierFilter(
                     sessionAuthenticationService
             ), QrCodeAuthenticationFilter.class);
 

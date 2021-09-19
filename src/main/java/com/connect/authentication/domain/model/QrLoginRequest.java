@@ -1,6 +1,6 @@
 package com.connect.authentication.domain.model;
 
-import com.connect.session.application.dto.DeviceInfoDto;
+import com.connect.session.domain.model.DeviceInfoModel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -14,16 +14,16 @@ public class QrLoginRequest {
 
     @NotNull
     @NotBlank
-    private String issuedFor;
+    private String username;
 
     @NotBlank
     @NotNull
-    private String mobileSignature;
+    private String mobileId;
 
     @NotBlank
     @NotNull
-    private String webSignature;
+    private String browserId;
 
     @Valid
-    private DeviceInfoDto deviceInfo;
+    private DeviceInfoModel deviceInfo;
 }

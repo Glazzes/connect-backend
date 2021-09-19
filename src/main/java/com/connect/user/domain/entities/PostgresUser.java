@@ -1,5 +1,6 @@
 package com.connect.user.domain.entities;
 
+import com.connect.shared.enums.ConnectionStatus;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -45,6 +46,9 @@ public class PostgresUser {
     @Column(name = "profile_picture", nullable = false)
     private String profilePicture;
 
+    @Enumerated(EnumType.STRING)
+    private ConnectionStatus connectionStatus;
+
     @OneToMany
     @JoinTable(
             name = "user_friends",
@@ -59,6 +63,7 @@ public class PostgresUser {
         this.email = email;
         this.password = password;
         this.profilePicture = "https://randomuser.me/api/portraits/men/44.jpg";
+        this.connectionStatus = ConnectionStatus.OFFLINE;
     }
 
 }

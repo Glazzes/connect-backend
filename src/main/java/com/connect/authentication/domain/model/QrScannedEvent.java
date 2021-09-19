@@ -22,5 +22,5 @@ public class QrScannedEvent {
 
     @NotNull
     @NotBlank
-    private String mobileSignature;
+    private String mobileId;
 }
